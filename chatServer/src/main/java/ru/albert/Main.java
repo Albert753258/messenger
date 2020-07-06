@@ -8,8 +8,5 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Server server = new Server();
         server.start(1111);
-//        Socket client = new Socket("localhost", 1111);
-//        PrintWriter toServer = new PrintWriter(client.getOutputStream(), true);
-//        toServer.println("send wfwefwr");
     }
 }

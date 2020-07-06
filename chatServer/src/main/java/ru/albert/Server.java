@@ -3,15 +3,16 @@ package ru.albert;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
     private ServerSocket serverSocket;
-    public static LinkedList<Socket> clients = new LinkedList<>();
     private ExecutorService exec;
-    BufferedReader reader = null;
+    public BufferedWriter writer;
+    BufferedReader clientReader = null;
+    BufferedWriter clientWriter;
+    public BufferedReader reader;
     public void start(int port){
         exec = Executors.newCachedThreadPool();
         try {
@@ -27,21 +28,28 @@ public class Server {
             try {
                 while (true){
                     Socket client = serverSocket.accept();
-                    //clients.add(client);
                     exec.execute(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                                String request = reader.readLine();
+                                clientReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                                String request = clientReader.readLine();
                                 String[] arr = request.split(" ");
                                 if(arr[0].equals("send")){
-                                    Writer out;
-                                    BufferedWriter writer = new BufferedWriter(new FileWriter("file", true));
+                                    writer = new BufferedWriter(new FileWriter("file", true));
                                     writer.write(arr[1] + "\n");
                                     writer.close();
+                                    System.out.println("Success");
                                 }
-                                System.out.println("Success");
+                                else if(arr[0].equals("get")){
+                                    clientWriter = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));
+                                    reader = new BufferedReader(new FileReader("file"));
+                                    String str = reader.readLine();
+                                    while (str != null){
+                                        clientWriter.write(str);
+                                        str = reader.readLine();
+                                    }
+                                }
                             } catch (IOException e) {
                                 throw new IllegalStateException(e);
                             }
