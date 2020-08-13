@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">EasyChat</string>
+    <string name="sendText">Отправить</string>
+    <string name="sendHint">Введите сообщение</string>
+</resources>
