@@ -1,20 +1,8 @@
-Hello!
-How are you?
-I am fine
-sergw
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-проррр 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
-ewfsef 
+{"id":1,"authorId":1,"text":"hello","timeMillis":10000000,"edited":false}
+{"id":1,"authorId":1,"text":"муу","timeMillis":1598353166605,"edited":false}
+{"id":1,"authorId":1,"text":"цу аа ау ук","timeMillis":1598353175512,"edited":false}
+{"action":"send","id":5,"authorId":0,"text":"ньо","timeMillis":0,"edited":false}
+{"action":"send","id":7,"authorId":0,"text":"frewfrewf","timeMillis":0,"edited":false}{"action":"send","id":7,"authorId":0,"text":"fdefsfd","timeMillis":0,"edited":false}
+{"action":"send","id":6,"authorId":0,"text":"efsdfes","timeMillis":0,"edited":false}
+{"action":"send","id":9,"authorId":0,"text":"sfsdfewf","timeMillis":0,"edited":false}
+{"action":"send","id":10,"authorId":0,"text":"wefewfewf","timeMillis":0,"edited":false}
