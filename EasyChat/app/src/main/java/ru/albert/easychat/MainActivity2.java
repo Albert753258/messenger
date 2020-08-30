@@ -101,38 +101,40 @@ public class MainActivity2 extends AppCompatActivity {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    class firstMessageReceiver extends AsyncTask<Void, Void, Void> {
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            try {
-                                session.getBasicRemote().sendText(new Message(0, "send", 0, messageText.getText().toString(), System.currentTimeMillis(), false).toString());
-                                messageText.setText("");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            catch (IllegalStateException e){
+                    if(!(messageText.getText().toString().equals(""))){
+                        class firstMessageReceiver extends AsyncTask<Void, Void, Void> {
+                            @Override
+                            protected Void doInBackground(Void... params) {
                                 try {
-                                    ClientManager client = ClientManager.createClient();
-                                    session = client.connectToServer(ClientEndpoint.class, new URI(host));
                                     session.getBasicRemote().sendText(new Message(0, "send", 0, messageText.getText().toString(), System.currentTimeMillis(), false).toString());
                                     messageText.setText("");
-                                } catch (DeploymentException ex) {
-                                    ex.printStackTrace();
-                                } catch (URISyntaxException ex) {
-                                    ex.printStackTrace();
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
+                                catch (IllegalStateException e){
+                                    try {
+                                        ClientManager client = ClientManager.createClient();
+                                        session = client.connectToServer(ClientEndpoint.class, new URI(host));
+                                        session.getBasicRemote().sendText(new Message(0, "send", 0, messageText.getText().toString(), System.currentTimeMillis(), false).toString());
+                                        messageText.setText("");
+                                    } catch (DeploymentException ex) {
+                                        ex.printStackTrace();
+                                    } catch (URISyntaxException ex) {
+                                        ex.printStackTrace();
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                                return null;
                             }
-                            return null;
+                            @Override
+                            protected void onPostExecute(Void result) {
+                                super.onPostExecute(result);
+                            }
                         }
-                        @Override
-                        protected void onPostExecute(Void result) {
-                            super.onPostExecute(result);
-                        }
+                        firstMessageReceiver downloader1 = new firstMessageReceiver();
+                        downloader1.execute();
                     }
-                    firstMessageReceiver downloader1 = new firstMessageReceiver();
-                    downloader1.execute();
 //                    ClientManager client = ClientManager.createClient();
 //                    try {
 //                        session = client.connectToServer(ClientEndpoint.class, new URI(host));
