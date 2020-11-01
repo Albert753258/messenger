@@ -54,7 +54,6 @@ public class Message {
             jGenerator.writeEndObject();
             jGenerator.close();
             String json = new String(stream.toByteArray(), "UTF-8");
-            System.out.println(json);
             return json;
         }
         catch (Exception e){

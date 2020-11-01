@@ -24,10 +24,8 @@ public class MessageDecoder implements Decoder.Text<Message> {
     @Override
     public Message decode(final String textMessage) throws DecodeException {
         try {
-            System.out.println(textMessage);
             JsonFactory jfactory = new JsonFactory();
             JsonParser jParser = jfactory.createParser(textMessage);
-            Message message = new Message();
             Message.MessageBuilder builder = new Message.MessageBuilder();
             while (jParser.nextToken() != JsonToken.END_OBJECT) {
                 String fieldname = jParser.getCurrentName();
