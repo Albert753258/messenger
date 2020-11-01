@@ -11,14 +11,14 @@ import java.io.ByteArrayOutputStream;
 @Builder
 @NoArgsConstructor
 public class Message {
-    public int id;
+    public long id;
     public String action;
-    public int authorId;
+    public long authorId;
     public String text;
     public long timeInMillis;
     public boolean edited;
 
-    public Message(int id, String action, int authorId, String text, long timeInMillis, boolean edited) {
+    public Message(long id, String action, long authorId, String text, long timeInMillis, boolean edited) {
         this.id = id;
         this.action = action;
         this.authorId = authorId;

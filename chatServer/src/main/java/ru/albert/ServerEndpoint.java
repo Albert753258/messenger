@@ -5,6 +5,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,9 +15,8 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-@javax.websocket.server.ServerEndpoint(value = "/chat", encoders = MessageEncoder.class, decoders = {MessageDecoder.class, BinaryDecoder.class})
+@javax.websocket.server.ServerEndpoint(value = "/chat", encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class ServerEndpoint {
-
     static Set<Session> peers = Collections.synchronizedSet(new HashSet<Session>());
 
     @OnOpen
@@ -32,9 +34,15 @@ public class ServerEndpoint {
             }
         }
         else if(message.action.equals("send")){
-            BufferedWriter writer = new BufferedWriter(new FileWriter("file", true));
-            writer.write(message.toString() + "\n");
-            writer.close();
+//            BufferedWriter writer = new BufferedWriter(new FileWriter("file", true));
+//            writer.write(message.toString() + "\n");
+//            writer.close();
+            String SQL = Main.INSERT_SQL + "('send', " + message.authorId + ", '" + message.text + "', " + message.timeInMillis + ", " + message.edited + ")";
+            try {
+                Main.statement.executeUpdate(SQL);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
             System.out.println("send");
             Main.messages.add(message);
             for (Session peer : peers) {
@@ -66,13 +74,5 @@ public class ServerEndpoint {
     public void onClose(Session session) throws IOException, EncodeException {
         System.out.println(format("%s left the chat room.", session.getId()));
         peers.remove(session);
-        //notify peers about leaving the chat room
-//        for (Session peer : peers) {
-//            Message message = new Message();
-//            message.setSender("Server");
-//            message.setContent(format("%s left the chat room", (String) session.getUserProperties().get("user")));
-//            message.setReceived(new Date());
-//            peer.getBasicRemote().sendObject(message);
-//        }
     }
 }

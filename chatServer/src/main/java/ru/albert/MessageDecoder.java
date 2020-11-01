@@ -32,12 +32,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
             Message.MessageBuilder builder = new Message.MessageBuilder();
             while (jParser.nextToken() != JsonToken.END_OBJECT) {
                 String fieldname = jParser.getCurrentName();
-                if ("id".equals(fieldname)) {
-                    jParser.nextToken();
-                    Main.lastId++;
-                    builder.id(Main.lastId);
-                }
-                else if ("authorId".equals(fieldname)) {
+                if ("authorId".equals(fieldname)) {
                     jParser.nextToken();
                     builder.authorId(jParser.getIntValue());
                 }
@@ -58,6 +53,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
                     builder.edited(jParser.getBooleanValue());
                 }
             }
+            Main.lastId++;
             jParser.close();
             return builder.build();
         } catch (IOException e) {

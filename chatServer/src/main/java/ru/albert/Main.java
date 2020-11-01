@@ -6,72 +6,49 @@ import lombok.SneakyThrows;
 import javax.websocket.DecodeException;
 import javax.websocket.DeploymentException;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Main {
     public static LinkedList<Message> messages = new LinkedList<>();
     public static int lastId = 0;
-    public static void main(String[] args) throws IOException, DecodeException {
-//        Server server = new Server();
-//        server.start(1111);
-
-
-
-//        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//        JsonFactory jfactory = new JsonFactory();
-//        JsonGenerator jGenerator = jfactory
-//                .createGenerator(stream, JsonEncoding.UTF8);
-//        jGenerator.writeStartObject();
-//        jGenerator.writeNumberField("id", 1);
-//        jGenerator.writeNumberField("authorId", 1);
-//        jGenerator.writeStringField("text", "hello");
-//        jGenerator.writeNumberField("timeMillis", 10000000L);
-//        jGenerator.writeBooleanField("edited", false);
-//        jGenerator.writeEndObject();
-//        jGenerator.close();
-//        String json = new String(stream.toByteArray(), "UTF-8");
-//        System.out.println(json);
-
-
-
-//        JsonParser jParser = jfactory.createParser(json);
-//        while (jParser.nextToken() != JsonToken.END_OBJECT) {
-//            String fieldname = jParser.getCurrentName();
-//            if ("text".equals(fieldname)) {
-//                jParser.nextToken();
-//                System.out.println(jParser.getText());
-//            }
-//        }
-//        jParser.close();
-
-
-
-//        SSLSender sender = new SSLSender("albert.nasyrov2016@gmail.com", "&753258&");
-//        sender.send("ewf", "ewf", "ahhhlbert.nasyrov2016@gmail.com", "lidia.dementyeva@gmail.com");
-
-
-
-        org.glassfish.tyrus.server.Server server = new org.glassfish.tyrus.server.Server("192.168.43.53", 1111, "/", ServerEndpoint.class);
-        try {
-            BufferedReader messagesReader = new BufferedReader(new FileReader("file"));
-            String message = messagesReader.readLine();
-            MessageDecoder decoder = new MessageDecoder();
-            while (!(message == null)){
-                messages.add(decoder.decode(message));
-                message = messagesReader.readLine();
-            }
-            server.start();
-            System.out.println("Press any key to stop the server..");
-            new Scanner(System.in).nextLine();
-        } catch (DeploymentException e) {
-            throw new RuntimeException(e);
-        } finally {
-            server.stop();
+    public static Connection connection;
+    public static Statement statement;
+    public static String DB_URL = "jdbc:postgresql://localhost:5432/messenger";
+    public static String DB_USER = "albert";
+    public static String DB_PASSWORD = "753258";
+    public static String GET_MESSAGES = "select * from messages";
+    public static String INSERT_SQL = "insert into messages(action, authorId, messagetext, timeInMillis, edited) values ";
+    public static void main(String[] args) throws SQLException, DeploymentException {
+        connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        statement = connection.createStatement();
+        org.glassfish.tyrus.server.Server server = new org.glassfish.tyrus.server.Server("192.168.43.244", 1111, "/", ServerEndpoint.class);
+        ResultSet result = statement.executeQuery(GET_MESSAGES);
+        //result.next();
+        while (result.next()){
+            Message message = new Message(result.getLong("id"), result.getString("action"), result.getLong("authorid"),
+                    result.getString("messagetext"), result.getLong("timeinmillis"), result.getBoolean("edited"));
+            messages.add(message);
         }
+
+        server.start();
+        Scanner sc = new Scanner(System.in);
+        sc.nextLine();
+        int i = 0;
+//            BufferedReader messagesReader = new BufferedReader(new FileReader("file"));
+//            String message = messagesReader.readLine();
+//            MessageDecoder decoder = new MessageDecoder();
+//            while (!(message == null)){
+//                messages.add(decoder.decode(message));
+//                message = messagesReader.readLine();
+//            }
+            //server.start();
     }
 }
