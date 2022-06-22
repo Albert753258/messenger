@@ -3,13 +3,9 @@ package ru.albert;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 
 import java.io.ByteArrayOutputStream;
 
-@Builder
-@NoArgsConstructor
 public class Message {
     public long id;
     public String action;
@@ -17,8 +13,24 @@ public class Message {
     public String text;
     public long timeInMillis;
     public boolean edited;
+    public String passHash;
+    public String userName;
+    public String sessionHash;
+    public String email;
 
     public Message(long id, String action, long authorId, String text, long timeInMillis, boolean edited) {
+        this.id = id;
+        this.action = action;
+        this.authorId = authorId;
+        this.text = text;
+        this.timeInMillis = timeInMillis;
+        this.edited = edited;
+    }
+
+    public Message(){
+
+    }
+    public Message(long id, String action, long authorId, String text, long timeInMillis, boolean edited, String passHash, String userName) {
         this.id = id;
         this.action = action;
         this.authorId = authorId;
@@ -43,7 +55,7 @@ public class Message {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             JsonFactory jfactory = new JsonFactory();
             JsonGenerator jGenerator = jfactory
-                    .createGenerator(stream, JsonEncoding.UTF8);
+                    .createGenerator(stream);
             jGenerator.writeStartObject();
             jGenerator.writeStringField("action", action);
             jGenerator.writeNumberField("id", id);
@@ -51,9 +63,13 @@ public class Message {
             jGenerator.writeStringField("text", text);
             jGenerator.writeNumberField("timeMillis", timeInMillis);
             jGenerator.writeBooleanField("edited", edited);
+            jGenerator.writeStringField("passHash", passHash);
+            jGenerator.writeStringField("userName", userName);
+            jGenerator.writeStringField("sessionHash", sessionHash);
+            jGenerator.writeStringField("email", email);
             jGenerator.writeEndObject();
             jGenerator.close();
-            String json = new String(stream.toByteArray(), "UTF-8");
+            String json = stream.toString();
             //System.out.println(json);
             return json;
         }
@@ -62,3 +78,5 @@ public class Message {
         }
     }
 }
+
+//TODO шифрование сообщений, анонимный чат и фильтр, подтверждение почты,

@@ -7,28 +7,11 @@
     android:layout_height="match_parent">
 
 
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/gs_top_text_container"
-        android:layout_above="@id/messageText"
-        android:scrollbars="vertical"
-        android:fillViewport="true">
-
-        <TextView
-            android:id="@+id/chatText"
-            android:textSize="20dp"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:inputType="textMultiLine"
-            android:scrollbars = "vertical"/>
-    </ScrollView>
-
     <Button
         android:id="@+id/sendButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="#000000"
         android:layout_alignParentBottom="true"
         android:text="@string/sendText" />
 
@@ -40,4 +23,21 @@
         android:backgroundTint="@android:color/transparent"
         android:hint="@string/sendHint"
         android:inputType="textPersonName" />
+
+    <TextView
+        android:id="@+id/messagesTexts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/messageText"
+        android:layout_below="@id/button2"
+        android:gravity="bottom" />
+
+    <Button
+        android:id="@+id/newChatButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:layout_above="messagesTexts"
+        android:layout_below="@id/gs_top_text_container"
+        android:text="@string/newChat" />
 </android.widget.RelativeLayout>

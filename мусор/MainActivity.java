@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView chatText;
     public EditText messageText;
     public Socket client;
-    public String host = "192.168.43.244";
+    public String host = "192.168.43.200";
     public int port = 1111;
     public static int lastId = 0;
     @Override

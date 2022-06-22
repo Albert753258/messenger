@@ -1,32 +1,42 @@
 package ru.albert.easychat;
 
-import android.content.Context;
-import android.util.AttributeSet;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import javax.websocket.OnMessage;
-import java.text.SimpleDateFormat;
 
 @javax.websocket.ClientEndpoint(encoders = MessageEncoder.class, decoders = MessageDecoder.class)
 public class ClientEndpoint {
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-
     @OnMessage
     public void onMessage(final Message message) {
-//        TextView textView = new TextView(MainActivity3.context);
-//        textView.setText(message.text);
-//        TableLayout.LayoutParams params = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
-//        textView.setLayoutParams(params);
-//        MainActivity3.tl.addView(textView);
-        //MainActivity2.chatText.append(message.text + "\n");
-        //MainActivity2.scrollView.fullScroll(View.FOCUS_DOWN);
-        final TextView textView = new TextView(MainActivity3.context);
-        textView.setText(message.text);
+        //final TextView textView = new TextView(MainActivity3.context);
+        if(message.action.equals("loginhash")){
+            String loginHash = message.text;
+            StartActivity.loginEditor.putString("loginhash", loginHash);
+            StartActivity.userName = message.userName;
+            StartActivity.sessionHash = loginHash;
+            StartActivity.loginEditor.putString("username", message.userName);
+            StartActivity.loginEditor.apply();
+            Intent intent = new Intent(StartActivity.startActivity, MainActivity3.class);
+            StartActivity.startActivity.startActivity(intent);
+        }
+        else if(message.action.equals("logininvalid")){
+            Toast.makeText(LoginActivity.loginActivity.getApplicationContext(), "LoginActivity.loginActivity.getString(R.string.loginIncorrect)", Toast.LENGTH_LONG).show();
+        }
+        else {
+            MainActivity3.activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity3.messagesText.append(message.text + "\n");
+                }
+            });
+            //textView.setText(message.text);
+        }
+        /*
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         textView.setLayoutParams(params);
         MainActivity3.activity.runOnUiThread(new Runnable() {
@@ -40,7 +50,9 @@ public class ClientEndpoint {
                         MainActivity3.scrollView.fullScroll(View.FOCUS_DOWN);
                     }
                 });
+
             }
         });
+        */
     }
 }

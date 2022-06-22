@@ -29,33 +29,56 @@ public class MessageDecoder implements Decoder.Text<Message> {
             //System.out.println(textMessage);
             JsonFactory jfactory = new JsonFactory();
             JsonParser jParser = jfactory.createParser(textMessage);
-            Message.MessageBuilder builder = new Message.MessageBuilder();
+            Message message = new Message();
+            //Message.MessageBuilder builder = new Message.MessageBuilder();
             while (jParser.nextToken() != JsonToken.END_OBJECT) {
                 String fieldname = jParser.getCurrentName();
                 if ("authorId".equals(fieldname)) {
                     jParser.nextToken();
-                    builder.authorId(jParser.getIntValue());
+                    message.authorId = jParser.getIntValue();
+                    //builder.authorId(jParser.getIntValue());
                 }
                 else if ("text".equals(fieldname)) {
                     jParser.nextToken();
-                    builder.text(jParser.getText());
+                    message.text = jParser.getText();
+                    //builder.text(jParser.getText());
                 }
                 else if ("action".equals(fieldname)) {
                     jParser.nextToken();
-                    builder.action(jParser.getText());
+                    message.action = jParser.getText();
+                    //builder.action(jParser.getText());
                 }
                 else if ("timeInMillis".equals(fieldname)) {
                     jParser.nextToken();
-                    builder.timeInMillis(jParser.getIntValue());
+                    message.timeInMillis = jParser.getIntValue();
+                    //builder.timeInMillis(jParser.getIntValue());
                 }
                 else if ("edited".equals(fieldname)) {
                     jParser.nextToken();
-                    builder.edited(jParser.getBooleanValue());
+                    message.edited = jParser.getBooleanValue();
+                    //builder.edited(jParser.getBooleanValue());
+                }
+                else if("passHash".equals(fieldname)){
+                    jParser.nextToken();
+                    message.passHash = jParser.getText();
+                }
+                else if("sessionHash".equals(fieldname)){
+                    jParser.nextToken();
+                    message.sessionHash = jParser.getText();
+                }
+                else if("userName".equals(fieldname)){
+                    jParser.nextToken();
+                    message.userName = jParser.getText();
+                }
+                else if("email".equals(fieldname)){
+                    jParser.nextToken();
+                    message.email = jParser.getText();
                 }
             }
             Main.lastId++;
             jParser.close();
-            return builder.build();
+            return message;
+            //return builder.build();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
