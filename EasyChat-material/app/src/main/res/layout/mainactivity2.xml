@@ -29,15 +29,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/messageText"
-        android:layout_below="@id/button2"
+        android:layout_below="@id/newChatButton"
         android:gravity="bottom" />
 
     <Button
         android:id="@+id/newChatButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
-        android:layout_above="messagesTexts"
         android:layout_below="@id/gs_top_text_container"
-        android:text="@string/newChat" />
+        android:text="@string/newChat"
+        android:textColor="#000000" />
 </android.widget.RelativeLayout>

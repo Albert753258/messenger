@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#65eb34"
     tools:context=".LoginFragment">
 
     <LinearLayout
@@ -30,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="132dp"
-            android:text="@string/shr_app_name"
+            android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.QuickChat.Title" />
 
 
@@ -47,18 +46,16 @@
                 android:layout_margin="10dp"
                 android:layout_weight="0.5"
                 android:text="@string/registerButton"
-                android:textColor="#000000"
-                app:backgroundTint="#BC0444" />
+                style="@style/Widget.QuickChat.Button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/startLoginButton"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_margin="10dp"
+                style="@style/Widget.QuickChat.Button"
                 android:layout_weight="0.5"
-                android:text="@string/loginButton"
-                android:textColor="#000000"
-                app:backgroundTint="#34a8eb" />
+                android:text="@string/loginButton"/>
 
 
         </LinearLayout>

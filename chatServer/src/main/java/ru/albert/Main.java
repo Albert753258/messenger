@@ -3,39 +3,37 @@ package ru.albert;
 
 import javax.websocket.DecodeException;
 import javax.websocket.DeploymentException;
+import javax.websocket.EncodeException;
 import java.io.*;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Main {
     public static LinkedList<Message> messages = new LinkedList<>();
     public static LinkedList<Account> accounts = new LinkedList<>();
-    public static LinkedList<Account> queque;
+    public static final String DB_URL = "jdbc:postgresql://localhost:5432/messenger";
+    public static final String DB_USER = "albert";
+    public static final String DB_PASSWORD = "1";
+    public static final String GET_ACCOUNTS = "SELECT * from accounts";
+    public static final String INSERT_SQL = "INSERT INTO accounts (username, passhash, sessionhash, email) VALUES ";
+    public static final String UPDATE_SQL_SESSIONHASH = "UPDATE accounts SET sessionhash = '";
+    public static final String UPDATE_SQL_PASSHASH = "UPDATE accounts SET passhash = '";
+    public static Connection connection;
+    public static Statement statement;
     public static int lastId = 0;
-    public static void main(String[] args) throws DeploymentException, IOException, DecodeException {
+    public static void main(String[] args) throws DeploymentException, IOException, DecodeException, EncodeException, SQLException {
         org.glassfish.tyrus.server.Server server = new org.glassfish.tyrus.server.Server("127.0.0.1", 1111, "/", ServerEndpoint.class);
-
-            BufferedReader messagesReader = new BufferedReader(new FileReader("file"));
-            BufferedReader accountsReader = new BufferedReader(new FileReader("authFile"));
-            String message = messagesReader.readLine();
-            String accountStr = accountsReader.readLine();
-            MessageDecoder decoder = new MessageDecoder();
-            AccountDecoder accountDecoder = new AccountDecoder();
-            while (!(message == null)){
-                messages.add(decoder.decode(message));
-                message = messagesReader.readLine();
-            }
-            while (accountStr != null){
-                accounts.add(accountDecoder.decode(accountStr));
-                accountStr = accountsReader.readLine();
-            }
-            server.start();
-        //Scanner sc = new Scanner(System.in);
-        while (true){
-            if(ServerEndpoint.clientCount >= 2){
-                ServerEndpoint.sessions.get(0).getBasicRemote().sendText(new Message("conncheck").toString());
-            }
+        connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        statement = connection.createStatement();
+        ResultSet result = statement.executeQuery(GET_ACCOUNTS);
+        while (result.next()){
+            Account account = new Account(result.getString("username"), result.getString("passhash"), result.getString("sessionhash"), result.getString("email"));
+            accounts.add(account);
         }
+        server.start();
+        Scanner sc = new Scanner(System.in);
+        sc.nextInt();
     }
 }
-//fulmen, ignotus, леонардик, quicha, ichat, imess, imessage, isend
+//fulmen, ignotus, леонардик, quich, ichat, imess, imessage, isend

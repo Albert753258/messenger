@@ -30,6 +30,10 @@ public class Message {
     public Message(){
 
     }
+    public Message(String userName, String action){
+        this.userName = userName;
+        this.action = action;
+    }
     public Message(long id, String action, long authorId, String text, long timeInMillis, boolean edited, String passHash, String userName) {
         this.id = id;
         this.action = action;
@@ -47,6 +51,10 @@ public class Message {
     }
     public Message(String action){
         this.action = action;
+    }
+    public Message(String action, long id){
+        this.action = action;
+        this.id = id;
     }
 
     @Override
@@ -78,5 +86,3 @@ public class Message {
         }
     }
 }
-
-//TODO шифрование сообщений, анонимный чат и фильтр, подтверждение почты,

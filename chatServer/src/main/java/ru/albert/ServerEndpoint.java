@@ -7,6 +7,7 @@ import javax.websocket.*;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -15,22 +16,21 @@ import static java.lang.String.format;
 public class ServerEndpoint {
     //static Set<Session> peers = Collections.synchronizedSet(new HashSet<Session>());
     static LinkedList<Session> sessions = new LinkedList<>();
+    public static LinkedList<Chat> chats = new LinkedList<>();
     Random random = new Random();
+    public static long lastChatId;
     public static int clientCount = 0;
-    BufferedWriter accountWriter = new BufferedWriter(new FileWriter("authFile", true));
-    BufferedWriter messageWriter = new BufferedWriter(new FileWriter("file", true));
 
     public ServerEndpoint() throws IOException {
     }
 
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session) throws IOException {
         System.out.println(format("%s joined the chat room.", session.getId()));
-        synchronized (sessions){
-            sessions.add(session);
-        }
+        //synchronized (sessions){
+            //sessions.add(session);
+        //}
         //peers.add(session);
-        clientCount++;
     }
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
@@ -45,53 +45,62 @@ public class ServerEndpoint {
     }
 
     @OnMessage
-    public void onMessage(Message message, Session session) throws IOException, EncodeException, NoSuchAlgorithmException {
-        if(message.action.equals("get")){
-            System.out.println("get");
-            for(Message message1: Main.messages){
-                session.getBasicRemote().sendObject(message1.toString());
+    public void onMessage(Message message, Session session) throws IOException, EncodeException, NoSuchAlgorithmException, InterruptedException, SQLException {
+        if(message.action.equals("send")){
+            synchronized (chats){
+                for(Chat chat: chats){
+                    if(chat.session1.getId().equals(session.getId()) || chat.session2.getId().equals(session.getId())){
+                        chat.session1.getBasicRemote().sendText(message.toString());
+                        chat.session2.getBasicRemote().sendText(message.toString());
+                    }
+                }
             }
         }
-        if(message.action.equals("send")){
-
-            messageWriter.write(message.toString() + "\n");
-            messageWriter.flush();
-            System.out.println("send");
-            Main.messages.add(message);
-            synchronized (sessions){
-                for (Session peer : sessions) {
-                    peer.getBasicRemote().sendText(message.toString());
+        else if(message.action.equals("newChat")){
+            synchronized (chats){
+                for(Chat chat: chats){
+                    if(chat.session1.getId().equals(session.getId()) || chat.session2.getId().equals(session.getId())){
+                        sessions.add(chat.session1);
+                        sessions.add(chat.session2);
+                        clientCount += 2;
+                        startChat();
+                        //todo возможено, что при малом числе клиентов будут общаться одни и те же
+                    }
                 }
             }
         }
         else if(message.action.equals("register")){
             String passHash = message.passHash;
             String userName = message.userName;
-            String email = message.email;
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update((userName + passHash + random.nextInt()).getBytes());
-            String sessionHash = bytesToHex(messageDigest.digest());
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            JsonFactory jFactory = new JsonFactory();
-            JsonGenerator jGenerator = jFactory.createGenerator(stream);
-            jGenerator.writeStartObject();
-            jGenerator.writeStringField("userName", userName);
-            jGenerator.writeStringField("passHash", passHash);
-            jGenerator.writeStringField("sessionHash", sessionHash);
-            jGenerator.writeEndObject();
-            jGenerator.close();
-            String json = stream.toString();
-            accountWriter.write(json + "\n");
-            accountWriter.flush();
-            Message loginMessage = new Message();
-            loginMessage.action = "loginhash";
-            loginMessage.text = sessionHash;
-            loginMessage.userName = userName;
-            session.getBasicRemote().sendObject(loginMessage.toString());
-            System.out.println("Register success");
-        }
-        else if(message.action.equals("queque")){
-
+            boolean isCorrect = true;
+            for(Account account: Main.accounts){
+                if(account.userName.equals(userName)){
+                    isCorrect = false;
+                    session.getBasicRemote().sendText(new Message("usernameexist").toString());
+                }
+                if(account.email.equals(message.email)){
+                    isCorrect = false;
+                    session.getBasicRemote().sendText(new Message("emailexist").toString());
+                }
+            }
+            if(isCorrect){
+                String email = message.email;
+                MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+                messageDigest.update((userName + passHash + random.nextInt()).getBytes());
+                String sessionHash = bytesToHex(messageDigest.digest());
+                String SQL = Main.INSERT_SQL + "('" + userName + "', '" + passHash + "', '"  + sessionHash + "', '" + email + "');";
+                Main.statement.executeUpdate(SQL);
+                Message loginMessage = new Message();
+                loginMessage.action = "loginhash";
+                Main.accounts.add(new Account(userName, passHash,sessionHash, email));
+                loginMessage.text = sessionHash;
+                loginMessage.userName = userName;
+                session.getBasicRemote().sendObject(loginMessage.toString());
+                sessions.add(session);
+                clientCount++;
+                startChat();
+                System.out.println("Register success");
+            }
         }
         else if(message.action.equals("login")){
             String passHash = message.passHash;
@@ -102,42 +111,43 @@ public class ServerEndpoint {
                     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
                     messageDigest.update((message.userName + passHash + random.nextInt()).getBytes());
                     String sessionHash = bytesToHex(messageDigest.digest());
+                    account.sessionHash = sessionHash;
+                    String SQL = Main.UPDATE_SQL_SESSIONHASH + sessionHash + "' WHERE username = '" + account.userName + "';";
+                    Main.statement.executeUpdate(SQL);
                     Message loginMessage = new Message();
                     loginMessage.action = "loginhash";
-                    loginMessage.text = sessionHash;
+                    loginMessage.text = account.sessionHash;
                     loginMessage.userName = message.userName;
+                    sessions.add(session);
+                    clientCount++;
+                    startChat();
                     session.getBasicRemote().sendObject(loginMessage.toString());
                 }
             }
             if(!userExist){
                 Message loginInvalidMessage = new Message();
                 loginInvalidMessage.action = "logininvalid";
+                synchronized (sessions){
+                    sessions.remove(session);
+                }
                 session.getBasicRemote().sendObject(loginInvalidMessage.toString());
             }
         }
-        /*else if(message.action.equals("loginhashcheck")){
-            for(Message message1: Main.messages){
-                session.getBasicRemote().sendObject(message1.toString());
+        else if(message.action.equals("sessionHashCheck")){
+            boolean sessionInvalid = true;
+            for(Account account: Main.accounts){
+                if(account.sessionHash.equals(message.sessionHash)){
+                    sessions.add(session);
+                    sessionInvalid = false;
+                    session.getBasicRemote().sendText(new Message("sessionValid").toString());
+                    clientCount++;
+                    startChat();
+                }
             }
-        }*/
-//        else if(message.action.equals("send")){
-//            Main.messages.add(message);
-//            for (Session peer : peers) {
-//                if (!session.getId().equals(peer.getId())) { // do not resend the message to its sender
-//                    peer.getBasicRemote().sendObject(message);
-//                }
-//            }
-//            System.out.println("send");
-//        }
-//        else if(message.text.equals("getid")){
-//            System.out.println("getid");
-//        }
-        //broadcast the message
-//        for (Session peer : peers) {
-//            if (!session.getId().equals(peer.getId())) { // do not resend the message to its sender
-//                peer.getBasicRemote().sendObject(message);
-//            }
-//        }
+            if(sessionInvalid){
+                session.getBasicRemote().sendText(new Message("sessionInvalid").toString());
+            }
+        }
     }
 
     @OnClose
@@ -146,6 +156,41 @@ public class ServerEndpoint {
         synchronized (sessions){
             sessions.remove(session);
         }
+        synchronized (chats){
+            for(Chat chat: chats){
+                if(chat.session1.getId().equals(session.getId())){
+                    //chats.remove(chat);
+                    sessions.add(chat.session2);
+                    //break;
+                }
+                if(chat.session2.getId().equals(session.getId())){
+                    //chats.remove(chat);
+                    sessions.add(chat.session1);
+                    //break;
+                }
+            }
+        }
         //peers.remove(session);
+    }
+    public void startChat() throws IOException, InterruptedException {
+        System.out.println("Trying to start...");
+        if(ServerEndpoint.clientCount >= 2){
+            System.out.println("Starting...");
+            Session session1;
+            Session session2;
+            synchronized (sessions){
+                session1 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
+                sessions.remove(session1);
+                session2 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
+                sessions.remove(session2);
+            }
+            synchronized (chats){
+                chats.add(new Chat(session1, session2));
+            }
+            session1.getBasicRemote().sendText(new Message("chatFound", lastChatId).toString());
+            session2.getBasicRemote().sendText(new Message("chatFound", lastChatId).toString());
+            clientCount -= 2;
+            System.out.println("Started");
+        }
     }
 }
