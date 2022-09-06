@@ -52,9 +52,10 @@ public class Message {
     public Message(String action){
         this.action = action;
     }
-    public Message(String action, long id){
+    public Message(String action, String salt, String pass){
         this.action = action;
-        this.id = id;
+        this.text = salt;
+        this.passHash = pass;
     }
 
     @Override

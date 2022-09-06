@@ -12,25 +12,21 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 
-public class LoginFragment extends Fragment {
+public class EmailConfirmFragment extends Fragment {
 
-    public static TextInputLayout passwordTextInput;
-    public static TextInputEditText materialUsername;
-    public static TextInputLayout loginMaterialInput;
-    public static TextInputEditText passwordEditText;
     public static MaterialButton nextButton;
     public static MaterialButton cancelButton;
+    public static TextInputLayout materialTextInput;
+    public static TextInputEditText materialemailEdit;
     public static View view;
 
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.login_fragment, container, false);
-        passwordTextInput = view.findViewById(R.id.login_password_text_input);
-        passwordEditText = view.findViewById(R.id.login_password_edit_text);
-        loginMaterialInput = view.findViewById(R.id.loginMaterialInput);
-        materialUsername = view.findViewById(R.id.login_materialUsername);
+        view = inflater.inflate(R.layout.emailconfirm_fragment, container, false);
         nextButton = view.findViewById(R.id.login_next_button);
+        materialemailEdit = view.findViewById(R.id.emailMaterialEdit);
+        materialTextInput = view.findViewById(R.id.emailMaterialInput);
         cancelButton = view.findViewById(R.id.login_cancel_button);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,7 +35,11 @@ public class LoginFragment extends Fragment {
                     @Override
                     protected Void doInBackground(Void... params) {
                         try {
-                            StartActivity.session.getBasicRemote().sendText(new Message(passwordEditText.getText().toString(), materialUsername.getText().toString(), "login").toString());
+                            Message message = new Message();
+                            message.action="emailConfirmCheck";
+                            message.authorId = Integer.parseInt(materialemailEdit.getText().toString());
+                            StartActivity.session.getBasicRemote().sendText(message.toString());
+                            //StartActivity.session.getBasicRemote().sendText(new Message(passwordEditText.getText().toString(), materialUsername.getText().toString(), "login").toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -57,7 +57,7 @@ public class LoginFragment extends Fragment {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LoginActivity.loginActivity.finish();
+                EmailConfirmActivity.emailConfirmActivity.finish();
             }
         });
         return view;

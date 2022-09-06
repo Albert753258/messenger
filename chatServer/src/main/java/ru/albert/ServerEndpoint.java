@@ -3,10 +3,15 @@ package ru.albert;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
 import javax.websocket.*;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -56,12 +61,16 @@ public class ServerEndpoint {
                 }
             }
         }
+        else if(message.action.equals("active")){
+            session.setMaxIdleTimeout(15000);
+        }
         else if(message.action.equals("newChat")){
             synchronized (chats){
                 for(Chat chat: chats){
                     if(chat.session1.getId().equals(session.getId()) || chat.session2.getId().equals(session.getId())){
                         sessions.add(chat.session1);
                         sessions.add(chat.session2);
+                        chats.remove(chat);
                         clientCount += 2;
                         startChat();
                         //todo возможено, что при малом числе клиентов будут общаться одни и те же
@@ -88,17 +97,24 @@ public class ServerEndpoint {
                 MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
                 messageDigest.update((userName + passHash + random.nextInt()).getBytes());
                 String sessionHash = bytesToHex(messageDigest.digest());
-                String SQL = Main.INSERT_SQL + "('" + userName + "', '" + passHash + "', '"  + sessionHash + "', '" + email + "');";
+                Random random1 = new Random();
+                int code = random1.nextInt(9999 - 1000 + 1) + 1000;
+                String SQL = Values.INSERT_SQL + "('" + userName + "', '" + passHash + "', '"  + sessionHash + "', '" + email + "', " +code + ");";
                 Main.statement.executeUpdate(SQL);
                 Message loginMessage = new Message();
                 loginMessage.action = "loginhash";
-                Main.accounts.add(new Account(userName, passHash,sessionHash, email));
-                loginMessage.text = sessionHash;
-                loginMessage.userName = userName;
-                session.getBasicRemote().sendObject(loginMessage.toString());
-                sessions.add(session);
-                clientCount++;
-                startChat();
+                Main.sender.send("QuiCh email check", code + "", email);
+                //todo
+                Main.accounts.add(new Account(userName, passHash, sessionHash, email, code));
+                //loginMessage.text = sessionHash;
+                //loginMessage.userName = userName;
+                //session.getBasicRemote().sendObject(loginMessage.toString());
+                //sessions.add(session);
+                //clientCount++;
+                //startChat();
+                Message message1 = new Message("confirmEmail");
+                session.getBasicRemote().sendText(message1.toString());
+                session.setMaxIdleTimeout(30000);
                 System.out.println("Register success");
             }
         }
@@ -112,24 +128,28 @@ public class ServerEndpoint {
                     messageDigest.update((message.userName + passHash + random.nextInt()).getBytes());
                     String sessionHash = bytesToHex(messageDigest.digest());
                     account.sessionHash = sessionHash;
-                    String SQL = Main.UPDATE_SQL_SESSIONHASH + sessionHash + "' WHERE username = '" + account.userName + "';";
+                    String SQL = Values.UPDATE_SQL_SESSIONHASH + sessionHash + "' WHERE username = '" + account.userName + "';";
                     Main.statement.executeUpdate(SQL);
                     Message loginMessage = new Message();
                     loginMessage.action = "loginhash";
                     loginMessage.text = account.sessionHash;
                     loginMessage.userName = message.userName;
-                    sessions.add(session);
-                    clientCount++;
-                    startChat();
                     session.getBasicRemote().sendObject(loginMessage.toString());
+                    if(account.verified == 0){
+                        sessions.add(session);
+                        clientCount++;
+                        startChat();
+                        session.setMaxIdleTimeout(30000);
+                    }
+                    else{
+                        Message message1 = new Message("confirmEmail");
+                        session.getBasicRemote().sendText(message1.toString());
+                    }
                 }
             }
             if(!userExist){
                 Message loginInvalidMessage = new Message();
                 loginInvalidMessage.action = "logininvalid";
-                synchronized (sessions){
-                    sessions.remove(session);
-                }
                 session.getBasicRemote().sendObject(loginInvalidMessage.toString());
             }
         }
@@ -137,15 +157,49 @@ public class ServerEndpoint {
             boolean sessionInvalid = true;
             for(Account account: Main.accounts){
                 if(account.sessionHash.equals(message.sessionHash)){
-                    sessions.add(session);
-                    sessionInvalid = false;
-                    session.getBasicRemote().sendText(new Message("sessionValid").toString());
-                    clientCount++;
-                    startChat();
+                    if(account.verified == 0){
+                        sessions.add(session);
+                        sessionInvalid = false;
+                        session.getBasicRemote().sendText(new Message("sessionValid").toString());
+                        clientCount++;
+                        startChat();
+                        session.setMaxIdleTimeout(30000);
+                    }
+                    else {
+                        Message message1 = new Message("confirmEmail");
+                        session.getBasicRemote().sendText(message1.toString());
+                    }
                 }
             }
             if(sessionInvalid){
                 session.getBasicRemote().sendText(new Message("sessionInvalid").toString());
+            }
+        }
+        else if(message.action.equals("emailConfirmCheck")){
+            synchronized (Main.accounts){
+                for(Account account: Main.accounts){
+                    if(account.sessionHash.equals(message.sessionHash)){
+                        if(account.verified == message.authorId){
+                            sessions.add(session);
+                            session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
+                            String SQL = Values.UPDATE_SQL_VERIFIED + message.authorId + "' WHERE username = '" + account.userName + "';";
+                            Main.statement.executeUpdate(SQL);
+                            clientCount++;
+                            startChat();
+                            session.setMaxIdleTimeout(30000);
+                        }
+                        else if(account.verified == 0){
+                            sessions.add(session);
+                            session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
+                            clientCount++;
+                            startChat();
+                            session.setMaxIdleTimeout(30000);
+                        }
+                        else {
+                            session.getBasicRemote().sendText(new Message("emailConfirmInvalid").toString());
+                        }
+                    }
+                }
             }
         }
     }
@@ -158,6 +212,7 @@ public class ServerEndpoint {
         }
         synchronized (chats){
             for(Chat chat: chats){
+                //todo comments
                 if(chat.session1.getId().equals(session.getId())){
                     //chats.remove(chat);
                     sessions.add(chat.session2);
@@ -168,11 +223,17 @@ public class ServerEndpoint {
                     sessions.add(chat.session1);
                     //break;
                 }
+                clientCount++;
             }
         }
         //peers.remove(session);
     }
-    public void startChat() throws IOException, InterruptedException {
+    public static IvParameterSpec generateIv() {
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        return new IvParameterSpec(iv);
+    }
+    public void startChat() throws IOException {
         System.out.println("Trying to start...");
         if(ServerEndpoint.clientCount >= 2){
             System.out.println("Starting...");
@@ -181,15 +242,16 @@ public class ServerEndpoint {
             synchronized (sessions){
                 session1 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
                 sessions.remove(session1);
+                clientCount--;
                 session2 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
                 sessions.remove(session2);
+                clientCount--;
             }
             synchronized (chats){
                 chats.add(new Chat(session1, session2));
             }
-            session1.getBasicRemote().sendText(new Message("chatFound", lastChatId).toString());
-            session2.getBasicRemote().sendText(new Message("chatFound", lastChatId).toString());
-            clientCount -= 2;
+            session1.getBasicRemote().sendText(new Message("chatFound", session1.getId(), session2.getId()).toString());
+            session2.getBasicRemote().sendText(new Message("chatFound", session1.getId(), session2.getId()).toString());
             System.out.println("Started");
         }
     }

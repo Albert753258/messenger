@@ -3,11 +3,8 @@ package ru.albert.quich;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
-import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
-import java.io.IOException;
 
 public class MessageDecoder implements Decoder.Text<Message> {
 
@@ -20,7 +17,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
     }
 
     @Override
-    public Message decode(final String textMessage) throws DecodeException {
+    public Message decode(final String textMessage) {
         try {
             JsonFactory jfactory = new JsonFactory();
             JsonParser jParser = jfactory.createParser(textMessage);
@@ -66,7 +63,7 @@ public class MessageDecoder implements Decoder.Text<Message> {
             }
             jParser.close();
             return message;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

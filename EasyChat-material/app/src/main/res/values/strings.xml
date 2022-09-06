@@ -2,7 +2,6 @@
     <string name="app_name">QuiCh</string>
     <string name="sendText">Send</string>
     <string name="sendHint">Enter message</string>
-    <string name="helloText">Hello! Please login or register</string>
     <string name="loginButton">Login</string>
     <string name="registerButton">Register</string>
     <string name="userNameText">Username</string>
@@ -19,4 +18,7 @@
     <string name="newChat">Next chat</string>
     <string name="findingChat">Finding chat...</string>
     <string name="loginInvalid">Login or password is invalid</string>
+    <string name="passwordConfirmText">Enter password again</string>
+    <string name="passwordConfirmError">Passwords didn\'t match</string>
+    <string name="emailConfirmHint">Email confirmation code</string>
 </resources>
