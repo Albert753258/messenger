@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class Message {
     public long id;
@@ -30,7 +29,7 @@ public class Message {
     public Message(){
 
     }
-    public  Message(String password, String userName, String action) throws NoSuchAlgorithmException {
+    public  Message(String password, String userName, String action) throws Exception {
         this.userName = userName;
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
         messageDigest.reset();
@@ -38,7 +37,7 @@ public class Message {
         this.passHash = bytesToHex(messageDigest.digest());
         this.action = action;
     }
-    public Message(String password, String userName, String action, String email) throws NoSuchAlgorithmException{
+    public Message(String password, String userName, String action, String email) throws Exception{
         this.userName = userName;
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
         messageDigest.reset();

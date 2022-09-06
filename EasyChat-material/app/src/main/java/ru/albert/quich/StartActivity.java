@@ -8,12 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import org.glassfish.tyrus.client.ClientManager;
-
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-
-import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
 public class StartActivity extends AppCompatActivity {
@@ -23,6 +18,7 @@ public class StartActivity extends AppCompatActivity {
     public static String userName;
     public static SharedPreferences.Editor loginEditor;
     public static String sessionHash;
+    public static int verified;
     public static AppCompatActivity startActivity;
     //todo register: hidden email
 
@@ -40,9 +36,7 @@ public class StartActivity extends AppCompatActivity {
                 try {
                     ClientManager client = ClientManager.createClient();
                     session = client.connectToServer(ClientEndpoint.class, new URI(host));
-                } catch (DeploymentException e) {
-                    e.printStackTrace();
-                } catch (URISyntaxException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
@@ -57,23 +51,30 @@ public class StartActivity extends AppCompatActivity {
             connector.execute();
             userName = loginSettings.getString("username", "");
             sessionHash = loginSettings.getString("loginhash", "");
-            class SessionChecker extends AsyncTask<Void, Void, Void> {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        session.getBasicRemote().sendText(new Message("sessionHashCheck", sessionHash).toString());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-                @Override
-                protected void onPostExecute(Void result) {
-                    super.onPostExecute(result);
-                }
+            verified = loginSettings.getInt("verified", 100);
+            if(verified != 0){
+                Intent intent = new Intent(this, EmailConfirmActivity.class);
+                startActivity(intent);
             }
-            SessionChecker checker = new SessionChecker();
-            checker.execute();
+            else{
+                class SessionChecker extends AsyncTask<Void, Void, Void> {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        try {
+                            session.getBasicRemote().sendText(new Message("sessionHashCheck", sessionHash).toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                    @Override
+                    protected void onPostExecute(Void result) {
+                        super.onPostExecute(result);
+                    }
+                }
+                SessionChecker checker = new SessionChecker();
+                checker.execute();
+            }
         }
         else {
             setContentView(R.layout.fragment_container);

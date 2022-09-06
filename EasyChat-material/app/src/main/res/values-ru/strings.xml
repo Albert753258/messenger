@@ -1,14 +1,23 @@
 <resources>
-    <string name="app_name">Квич</string>
+    <string name="app_name">Quich</string>
     <string name="sendText">Отправить</string>
     <string name="sendHint">Введите сообщение</string>
-    <string name="helloText">Hello! Please login or register</string>
-    <string name="loginButton">Login</string>
-    <string name="registerButton">Register</string>
-    <string name="userNameText">Enter username</string>
-    <string name="passwordText">Enter password</string>
-    <string name="submitRegisterButton">Register</string>
-    <string name="loginIncorrect">Login incorrect</string>
+    <string name="loginButton">Войти</string>
+    <string name="registerButton">Регистрация</string>
+    <string name="userNameText">Имя пользоявател</string>
+    <string name="passwordText">Пароль</string>
+    <string name="submitRegisterButton">Зарегестрироваться</string>
+    <string name="loginIncorrect">Неверный логин</string>
     <string name="emailInput">E-mail</string>
-    <string name="newChat">Next chat</string>
+    <string name="newChat">Следующий чатt</string>
+    <string name="nextButton">Далее</string>
+    <string name="cancelButton">Назад</string>
+    <string name="shortPasswordError">Пароль должен содержать минимум 8 символов</string>
+    <string name="loginAgain">Пожалуйста, войдите снова</string>
+    <string name="usernameExist">Это имя пользователя уже использовано</string>
+    <string name="emailExist">Эта почта уже использована</string>
+    <string name="findingChat">Поиск...</string>
+    <string name="loginInvalid">Неверное имя пользователя илипароль</string>
+    <string name="passwordConfirmText">Подтверждение пароля</string>
+    <string name="passwordConfirmError">Пароли не совпадают</string>
 </resources>

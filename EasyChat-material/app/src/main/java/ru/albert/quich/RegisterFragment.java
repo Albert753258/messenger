@@ -7,24 +7,20 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
 
 public class RegisterFragment extends Fragment {
 
     public static TextInputLayout passwordTextInput;
+    public static TextInputLayout passwordConfirmTextInput;
     public static TextInputEditText materialUsername;
     public static TextInputEditText passwordEditText;
+    public static TextInputEditText passwordEditTextConfirm;
     public static TextInputLayout register_email_text_input;
     public static TextInputLayout registerUserInput;
     public static MaterialButton nextButton;
@@ -32,10 +28,11 @@ public class RegisterFragment extends Fragment {
     public static MaterialButton cancelButton;
 
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.register_fragment, container, false);
         register_email_text_input = view.findViewById(R.id.register_email_text_input);
+        passwordEditTextConfirm = view.findViewById(R.id.register_password_edit_text_confirm);
+        passwordConfirmTextInput = view.findViewById(R.id.register_password_text_input_confirm);
         passwordTextInput = view.findViewById(R.id.register_password_text_input);
         registerUserInput = view.findViewById(R.id.registerUserInput);
         emailEditText = view.findViewById(R.id.register_email_edit_text);
@@ -47,7 +44,22 @@ public class RegisterFragment extends Fragment {
             @Override
             public boolean onKey(View view, int i, KeyEvent keyEvent) {
                 if (isPasswordValid(passwordEditText.getText())) {
-                    passwordTextInput.setError(null); //Clear the error
+                    passwordTextInput.setError(null);
+                    passwordConfirmTextInput.setError(null);
+                }
+                if(passwordEditText.getText().equals(passwordEditTextConfirm.getText())){
+                    passwordTextInput.setError(null);
+                    passwordConfirmTextInput.setError(null);
+                }
+                return false;
+            }
+        });
+        passwordEditTextConfirm.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                if(passwordEditText.getText().equals(passwordEditTextConfirm.getText())){
+                    passwordTextInput.setError(null);
+                    passwordConfirmTextInput.setError(null);
                 }
                 return false;
             }
@@ -57,13 +69,18 @@ public class RegisterFragment extends Fragment {
             public void onClick(View view) {
                 if (!isPasswordValid(passwordEditText.getText())) {
                     passwordTextInput.setError(getString(R.string.shortPasswordError));
-                } else {
+                }
+                else if(!passwordEditText.getText().toString().equals(passwordEditTextConfirm.getText().toString())){
+                    passwordConfirmTextInput.setError(getString(R.string.passwordConfirmError));
+                    passwordTextInput.setError(getString(R.string.passwordConfirmError));
+                }
+                else {
                     class RegisterSender extends AsyncTask<Void, Void, Void> {
                         @Override
                         protected Void doInBackground(Void... params) {
                             try {
                                 StartActivity.session.getBasicRemote().sendText(new Message(passwordEditText.getText().toString(), materialUsername.getText().toString(), "register", emailEditText.getText().toString()).toString());
-                            } catch (IOException | NoSuchAlgorithmException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                             return null;
@@ -87,7 +104,7 @@ public class RegisterFragment extends Fragment {
         return view;
     }
 
-    private boolean isPasswordValid(@Nullable Editable text) {
+    private boolean isPasswordValid(Editable text) {
         return text != null && text.length() >= 8;
     }
 
