@@ -100,7 +100,7 @@ public class ServerEndpoint {
                 Random random1 = new Random();
                 int code = random1.nextInt(9999 - 1000 + 1) + 1000;
                 String SQL = Values.INSERT_SQL + "('" + userName + "', '" + passHash + "', '"  + sessionHash + "', '" + email + "', " +code + ");";
-                Main.statement.executeUpdate(SQL);
+                Main.statement.execute(SQL);
                 Message loginMessage = new Message();
                 loginMessage.action = "loginhash";
                 Main.sender.send("QuiCh email check", code + "", email);
@@ -177,13 +177,16 @@ public class ServerEndpoint {
         }
         else if(message.action.equals("emailConfirmCheck")){
             synchronized (Main.accounts){
-                for(Account account: Main.accounts){
+                for(int i = 0; i < Main.accounts.size(); i++){
+                    Account account = Main.accounts.get(i);
                     if(account.sessionHash.equals(message.sessionHash)){
                         if(account.verified == message.authorId){
                             sessions.add(session);
                             session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
                             String SQL = Values.UPDATE_SQL_VERIFIED + message.authorId + "' WHERE username = '" + account.userName + "';";
                             Main.statement.executeUpdate(SQL);
+                            account.verified = 0;
+                            Main.accounts.set(i, account);
                             clientCount++;
                             startChat();
                             session.setMaxIdleTimeout(30000);

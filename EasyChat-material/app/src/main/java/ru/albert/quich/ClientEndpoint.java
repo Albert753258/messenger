@@ -101,6 +101,9 @@ public class ClientEndpoint {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
+                        StartActivity.loginEditor.putInt("verified", 0);
+                        StartActivity.loginEditor.apply();
+                        StartActivity.verified = 0;
                         StartActivity.session.getBasicRemote().sendText(new Message("sessionHashCheck", StartActivity.sessionHash).toString());
                     } catch (Exception e) {
                         e.printStackTrace();
