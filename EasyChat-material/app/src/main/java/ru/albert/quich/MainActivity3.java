@@ -70,19 +70,6 @@ public class MainActivity3 extends AppCompatActivity {
             messagesText.setMovementMethod(new ScrollingMovementMethod());
             context = this;
             activity = this;
-            Message activeMessage = new Message();
-            activeMessage.action = "active";
-            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-            executor.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        TurboSession.sendMessage(activeMessage);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, 0, 5, TimeUnit.SECONDS);
 
             Button sendButton = findViewById(R.id.sendButton);
             sendButton.setOnClickListener(new View.OnClickListener() {

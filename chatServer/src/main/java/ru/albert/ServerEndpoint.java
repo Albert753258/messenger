@@ -27,6 +27,7 @@ public class ServerEndpoint {
     @OnOpen
     public void onOpen(Session session)  {
         System.out.println(format("%s joined the chat room.", session.getId()));
+        session.setMaxIdleTimeout(timeOut);
     }
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);

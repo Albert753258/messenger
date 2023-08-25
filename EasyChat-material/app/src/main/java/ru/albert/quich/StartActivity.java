@@ -10,6 +10,10 @@ import android.util.Log;
 
 import org.glassfish.tyrus.client.ClientManager;
 import java.net.URI;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.websocket.Session;
 
 public class StartActivity extends AppCompatActivity {
@@ -93,5 +97,18 @@ public class StartActivity extends AppCompatActivity {
             ServerConnector connector = new ServerConnector();
             connector.execute();
         }
+        Message activeMessage = new Message();
+        activeMessage.action = "active";
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TurboSession.sendMessage(activeMessage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, 5, TimeUnit.SECONDS);
     }
 }
