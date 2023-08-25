@@ -109,6 +109,7 @@ public class ServerEndpoint {
                 //clientCount++;
                 //startChat();
                 Message message1 = new Message("confirmEmail");
+                message1.sessionHash = sessionHash;
                 session.getBasicRemote().sendText(message1.toString());
                 session.setMaxIdleTimeout(30000);
                 System.out.println("Register success");
@@ -119,7 +120,7 @@ public class ServerEndpoint {
             boolean userExist = false;
             for(int i = 0; i < Main.accounts.size(); i++){
                 Account account = Main.accounts.get(i);
-                if(account.passHash.equals(passHash)){
+                if(account.userName.equals(message.userName) && account.passHash.equals(passHash)){
                     userExist = true;
                     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
                     messageDigest.update((message.userName + passHash + random.nextInt()).getBytes());
@@ -142,6 +143,7 @@ public class ServerEndpoint {
                     }
                     else{
                         Message message1 = new Message("confirmEmail");
+                        message1.sessionHash = sessionHash;
                         session.getBasicRemote().sendText(message1.toString());
                     }
                 }
@@ -169,6 +171,7 @@ public class ServerEndpoint {
                     else {
                         Message message1 = new Message("confirmEmail");
                         sessionInvalid = false;
+                        message1.sessionHash = account.sessionHash;
                         System.out.println("confirmEmail");
                         session.getBasicRemote().sendText(message1.toString());
                     }
@@ -205,6 +208,7 @@ public class ServerEndpoint {
                         else {
                             session.getBasicRemote().sendText(new Message("emailConfirmInvalid").toString());
                         }
+                        return;
                     }
                 }
             }

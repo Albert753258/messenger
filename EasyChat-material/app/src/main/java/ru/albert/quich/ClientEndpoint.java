@@ -84,6 +84,7 @@ public class ClientEndpoint {
             });
         }
         else if(message.action.equals("confirmEmail")){
+            StartActivity.sessionHash = message.sessionHash;
             Intent intent = new Intent(StartActivity.startActivity, EmailConfirmActivity.class);
             StartActivity.startActivity.startActivity(intent);
         }
