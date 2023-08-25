@@ -13,7 +13,8 @@ import java.net.URI;
 import javax.websocket.Session;
 
 public class StartActivity extends AppCompatActivity {
-    public static String host = "ws://172.86.75.11:1111/chat";
+    //public static String host = "ws://172.86.75.11:1111/chat";
+    public static String host = "ws://192.168.1.46:1111/chat";
     public static Session session;
     public static SharedPreferences loginSettings;
     public static String userName;

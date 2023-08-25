@@ -51,7 +51,6 @@ public class ServerEndpoint {
 
     @OnMessage
     public void onMessage(Message message, Session session) throws IOException, EncodeException, NoSuchAlgorithmException, InterruptedException, SQLException {
-        System.out.println(message.action);
         if(message.action.equals("send")){
             synchronized (chats){
                 for(Chat chat: chats){
@@ -154,8 +153,8 @@ public class ServerEndpoint {
                 session.getBasicRemote().sendObject(loginInvalidMessage.toString());
             }
         }
-        else if(message.action.equals("sessionHashCheck " + Main.accounts.size())){
-            System.out.println("SessionHashCheckBegin");
+        else if(message.action.equals("sessionHashCheck")){
+            System.out.println("SessionHashCheckBegin " + Main.accounts.size());
             boolean sessionInvalid = true;
             for(Account account: Main.accounts){
                 if(account.sessionHash.equals(message.sessionHash)){
@@ -189,7 +188,7 @@ public class ServerEndpoint {
                         if(account.verified == message.authorId){
                             sessions.add(session);
                             session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
-                            String SQL = Values.UPDATE_SQL_VERIFIED + message.authorId + "' WHERE username = '" + account.userName + "';";
+                            String SQL = Values.UPDATE_SQL_VERIFIED + 0 + "' WHERE username = '" + account.userName + "';";
                             Main.statement.executeUpdate(SQL);
                             account.verified = 0;
                             Main.accounts.set(i, account);
@@ -252,7 +251,7 @@ public class ServerEndpoint {
                 session1 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
                 sessions.remove(session1);
                 clientCount--;
-                session2 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
+                session2 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount));
                 sessions.remove(session2);
                 clientCount--;
             }
