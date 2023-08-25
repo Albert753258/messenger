@@ -154,7 +154,7 @@ public class ServerEndpoint {
                 session.getBasicRemote().sendObject(loginInvalidMessage.toString());
             }
         }
-        else if(message.action.equals("sessionHashCheck")){
+        else if(message.action.equals("sessionHashCheck " + Main.accounts.size())){
             System.out.println("SessionHashCheckBegin");
             boolean sessionInvalid = true;
             for(Account account: Main.accounts){
@@ -171,7 +171,7 @@ public class ServerEndpoint {
                     else {
                         Message message1 = new Message("confirmEmail");
                         sessionInvalid = false;
-                        System.out.println("SessionInvalid");
+                        System.out.println("confirmEmail");
                         session.getBasicRemote().sendText(message1.toString());
                     }
                 }
