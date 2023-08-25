@@ -1,5 +1,6 @@
 package ru.albert.quich;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Base64;
@@ -121,6 +122,17 @@ public class ClientEndpoint {
             }
             SessionChecker checker = new SessionChecker();
             checker.execute();
+        }
+        else if(message.action.equals("stopChat")){
+            MainActivity3.activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity3.dialog = new ProgressDialog(MainActivity3.activity);
+                    MainActivity3.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    MainActivity3.dialog.setMessage(MainActivity3.activity.getString(R.string.findingChat));
+                    MainActivity3.dialog.show();
+                }
+            });
         }
         else {
             MainActivity3.activity.runOnUiThread(new Runnable() {

@@ -66,6 +66,8 @@ public class ServerEndpoint {
                     if(chat.session1.getId().equals(session.getId()) || chat.session2.getId().equals(session.getId())){
                         sessions.add(chat.session1);
                         sessions.add(chat.session2);
+                        chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
+                        chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
                         chats.remove(chat);
                         clientCount += 2;
                         startChat();
@@ -99,7 +101,7 @@ public class ServerEndpoint {
                 Main.statement.execute(SQL);
                 Message loginMessage = new Message();
                 loginMessage.action = "loginhash";
-                Main.sender.send("QuiCh email check", code + "", email);
+                //Main.sender.send("QuiCh email check", code + "", email);
                 //todo
                 Main.accounts.add(new Account(userName, passHash, sessionHash, email, code));
                 //loginMessage.text = sessionHash;
