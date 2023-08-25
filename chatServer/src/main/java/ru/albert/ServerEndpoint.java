@@ -51,6 +51,7 @@ public class ServerEndpoint {
 
     @OnMessage
     public void onMessage(Message message, Session session) throws IOException, EncodeException, NoSuchAlgorithmException, InterruptedException, SQLException {
+        System.out.println(message.action);
         if(message.action.equals("send")){
             synchronized (chats){
                 for(Chat chat: chats){

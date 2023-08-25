@@ -39,7 +39,7 @@ public class EmailConfirmFragment extends Fragment {
                             message.action="emailConfirmCheck";
                             message.authorId = Integer.parseInt(materialemailEdit.getText().toString());
                             message.sessionHash = StartActivity.sessionHash;
-                            StartActivity.session.getBasicRemote().sendText(message.toString());
+                            TurboSession.sendMessage(message);
                             //StartActivity.session.getBasicRemote().sendText(new Message(passwordEditText.getText().toString(), materialUsername.getText().toString(), "login").toString());
                         } catch (Exception e) {
                             e.printStackTrace();

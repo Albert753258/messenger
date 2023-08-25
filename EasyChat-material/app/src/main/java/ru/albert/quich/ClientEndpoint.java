@@ -28,6 +28,7 @@ public class ClientEndpoint {
             StartActivity.userName = message.userName;
             StartActivity.sessionHash = loginHash;
             StartActivity.loginEditor.putString("username", message.userName);
+            StartActivity.loginEditor.putInt("verified", 0);
             StartActivity.loginEditor.apply();
             Intent intent = new Intent(StartActivity.startActivity, MainActivity3.class);
             StartActivity.startActivity.startActivity(intent);
@@ -104,7 +105,7 @@ public class ClientEndpoint {
                         StartActivity.loginEditor.putInt("verified", 0);
                         StartActivity.loginEditor.apply();
                         StartActivity.verified = 0;
-                        StartActivity.session.getBasicRemote().sendText(new Message("sessionHashCheck", StartActivity.sessionHash).toString());
+                        TurboSession.sendMessage(new Message("sessionHashCheck", StartActivity.sessionHash));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

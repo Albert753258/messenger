@@ -76,7 +76,7 @@ public class MainActivity3 extends AppCompatActivity {
                 @Override
                 public void run() {
                     try {
-                        StartActivity.session.getBasicRemote().sendText(activeMessage.toString());
+                        TurboSession.sendMessage(activeMessage);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -93,7 +93,7 @@ public class MainActivity3 extends AppCompatActivity {
                             protected Void doInBackground(Void... params) {
                                 try {
                                     String encryptedText = encrypt(messageText.getText().toString());
-                                    StartActivity.session.getBasicRemote().sendText(new Message(ClientEndpoint.chatID, "send", 0, encryptedText, System.currentTimeMillis(), false).toString());
+                                    TurboSession.sendMessage(new Message(ClientEndpoint.chatID, "send", 0, encryptedText, System.currentTimeMillis(), false));
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -123,7 +123,7 @@ public class MainActivity3 extends AppCompatActivity {
                         @Override
                         protected Void doInBackground(Void... params) {
                             try {
-                                StartActivity.session.getBasicRemote().sendText(new Message("newChat", "dummy").toString());
+                                TurboSession.sendMessage(new Message("newChat", "dummy"));
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {

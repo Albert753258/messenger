@@ -79,7 +79,7 @@ public class RegisterFragment extends Fragment {
                         @Override
                         protected Void doInBackground(Void... params) {
                             try {
-                                StartActivity.session.getBasicRemote().sendText(new Message(passwordEditText.getText().toString(), materialUsername.getText().toString(), "register", emailEditText.getText().toString()).toString());
+                                TurboSession.sendMessage(new Message(passwordEditText.getText().toString(), materialUsername.getText().toString(), "register", emailEditText.getText().toString()));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

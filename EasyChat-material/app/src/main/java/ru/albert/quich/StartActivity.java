@@ -20,6 +20,7 @@ public class StartActivity extends AppCompatActivity {
     public static String sessionHash;
     public static int verified;
     public static AppCompatActivity startActivity;
+    public static ClientManager client;
     //todo register: hidden email
 
     @Override
@@ -34,7 +35,7 @@ public class StartActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-                    ClientManager client = ClientManager.createClient();
+                    client = ClientManager.createClient();
                     session = client.connectToServer(ClientEndpoint.class, new URI(host));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -61,7 +62,7 @@ public class StartActivity extends AppCompatActivity {
                     @Override
                     protected Void doInBackground(Void... params) {
                         try {
-                            session.getBasicRemote().sendText(new Message("sessionHashCheck", sessionHash).toString());
+                            TurboSession.sendMessage(new Message("sessionHashCheck", sessionHash));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
