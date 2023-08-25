@@ -133,6 +133,8 @@ public class ClientEndpoint {
                 @Override
                 public void run() {
                     MainActivity3.dialog.show();
+                    //todo strings
+                    Toast.makeText(MainActivity3.activity.getApplicationContext(), "Chat ended", Toast.LENGTH_LONG).show();
                     MainActivity3.messagesText.setText("");
                 }
             });

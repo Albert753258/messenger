@@ -1,17 +1,17 @@
 package ru.albert;
 
 
-import javax.websocket.DecodeException;
 import javax.websocket.DeploymentException;
-import javax.websocket.EncodeException;
 import javax.websocket.Session;
-import java.io.*;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static ru.albert.ServerEndpoint.chats;
+import static ru.albert.ServerEndpoint.sessions;
 
 public class Main {
     public static LinkedList<Message> messages = new LinkedList<>();
@@ -21,7 +21,7 @@ public class Main {
     public static Statement statement;
     public static SSLSender sender;
     public static int lastId = 0;
-    public static void main(String[] args) throws DeploymentException, IOException, DecodeException, EncodeException, SQLException {
+    public static void main(String[] args) throws DeploymentException, SQLException {
         org.glassfish.tyrus.server.Server server = new org.glassfish.tyrus.server.Server("172.86.75.11", 1111, "/", ServerEndpoint.class);
         connection = DriverManager.getConnection(Values.DB_URL, Values.DB_USER, Values.DB_PASSWORD);
         statement = connection.createStatement();
@@ -35,12 +35,32 @@ public class Main {
         executor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                synchronized (ServerEndpoint.sessions){
-                    for(Session session : ServerEndpoint.sessions){
+                synchronized (sessions){
+                    for(Session session : sessions){
                         if(!session.isOpen()){
-                            ServerEndpoint.sessions.remove(session);
+                            sessions.remove(session);
                             ServerEndpoint.clientCount--;
                             System.out.println("Session removed" + session.getId());
+                            synchronized (chats){
+                                try {
+                                    for (Chat chat : chats) {
+                                        if (chat.session1.getId().equals(session.getId())) {
+                                            sessions.add(chat.session2);
+                                            chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
+                                            chats.remove(chat);
+                                            break;
+                                        }
+                                        else if (chat.session2.getId().equals(session.getId())) {
+                                            sessions.add(chat.session1);
+                                            chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
+                                            chats.remove(chat);
+                                            break;
+                                        }
+                                        ServerEndpoint.clientCount++;
+                                    }
+                                }
+                                catch (Exception e){}
+                            }
                             break;
                         }
                     }

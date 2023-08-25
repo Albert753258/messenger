@@ -25,7 +25,7 @@ public class ServerEndpoint {
     }
 
     @OnOpen
-    public void onOpen(Session session) throws IOException {
+    public void onOpen(Session session)  {
         System.out.println(format("%s joined the chat room.", session.getId()));
     }
     public static String bytesToHex(byte[] hash) {
@@ -41,7 +41,7 @@ public class ServerEndpoint {
     }
 
     @OnMessage
-    public void onMessage(Message message, Session session) throws IOException, EncodeException, NoSuchAlgorithmException, InterruptedException, SQLException {
+    public void onMessage(Message message, Session session) throws IOException, EncodeException, NoSuchAlgorithmException, SQLException {
         if(message.action.equals("send")){
             synchronized (chats){
                 for(Chat chat: chats){
@@ -213,7 +213,7 @@ public class ServerEndpoint {
     }
 
     @OnClose
-    public void onClose(Session session) throws IOException, EncodeException {
+    public void onClose(Session session) throws IOException {
         System.out.println(format("%s left the chat room.", session.getId()));
         synchronized (sessions){
             sessions.remove(session);
@@ -222,19 +222,20 @@ public class ServerEndpoint {
             for(Chat chat: chats){
                 //todo comments
                 if(chat.session1.getId().equals(session.getId())){
-                    //chats.remove(chat);
                     sessions.add(chat.session2);
-                    //break;
+                    chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
+                    chats.remove(chat);
+                    break;
                 }
                 if(chat.session2.getId().equals(session.getId())){
-                    //chats.remove(chat);
                     sessions.add(chat.session1);
-                    //break;
+                    chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
+                    chats.remove(chat);
+                    break;
                 }
                 clientCount++;
             }
         }
-        //peers.remove(session);
     }
     public static IvParameterSpec generateIv() {
         byte[] iv = new byte[16];
