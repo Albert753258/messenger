@@ -155,6 +155,7 @@ public class ServerEndpoint {
             }
         }
         else if(message.action.equals("sessionHashCheck")){
+            System.out.println("SessionHashCheckBegin");
             boolean sessionInvalid = true;
             for(Account account: Main.accounts){
                 if(account.sessionHash.equals(message.sessionHash)){
