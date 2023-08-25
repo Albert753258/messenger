@@ -16,7 +16,7 @@ public class SSLSender {
         this.password = password;
 
         props = new Properties();
-        props.put("mail.smtp.host", "smtp.rambler.ru");
+        props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.socketFactory.port", "465");
         props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         props.put("mail.smtp.auth", "true");
