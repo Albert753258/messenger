@@ -48,7 +48,12 @@ public class ClientEndpoint {
             MainActivity3.salt = message.text;
             MainActivity3.pass = message.passHash;
             chatID = message.id;
-            MainActivity3.dialog.cancel();
+            MainActivity3.activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity3.dialog.cancel();
+                }
+            });
             MainActivity3.sKey = MainActivity3.getKeyFromPassword(message.passHash, message.text);
         }
         else if(message.action.equals("logininvalid")){
@@ -127,10 +132,8 @@ public class ClientEndpoint {
             MainActivity3.activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    MainActivity3.dialog = new ProgressDialog(MainActivity3.activity);
-                    MainActivity3.dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    MainActivity3.dialog.setMessage(MainActivity3.activity.getString(R.string.findingChat));
                     MainActivity3.dialog.show();
+                    MainActivity3.messagesText.setText("");
                 }
             });
         }

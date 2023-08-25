@@ -32,6 +32,7 @@ public class ServerEndpoint {
     @OnOpen
     public void onOpen(Session session) throws IOException {
         System.out.println(format("%s joined the chat room.", session.getId()));
+        session.setMaxIdleTimeout(15000);
     }
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
@@ -113,7 +114,7 @@ public class ServerEndpoint {
                 Message message1 = new Message("confirmEmail");
                 message1.sessionHash = sessionHash;
                 session.getBasicRemote().sendText(message1.toString());
-                session.setMaxIdleTimeout(30000);
+                session.setMaxIdleTimeout(15000);
                 System.out.println("Register success");
             }
         }
@@ -140,7 +141,7 @@ public class ServerEndpoint {
                         sessions.add(session);
                         clientCount++;
                         startChat();
-                        session.setMaxIdleTimeout(30000);
+                        session.setMaxIdleTimeout(15000);
                         return;
                     }
                     else{
@@ -168,7 +169,7 @@ public class ServerEndpoint {
                         session.getBasicRemote().sendText(new Message("sessionValid").toString());
                         clientCount++;
                         startChat();
-                        session.setMaxIdleTimeout(30000);
+                        session.setMaxIdleTimeout(15000);
                     }
                     else {
                         Message message1 = new Message("confirmEmail");
@@ -198,14 +199,14 @@ public class ServerEndpoint {
                             Main.accounts.set(i, account);
                             clientCount++;
                             startChat();
-                            session.setMaxIdleTimeout(30000);
+                            session.setMaxIdleTimeout(15000);
                         }
                         else if(account.verified == 0){
                             sessions.add(session);
                             session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
                             clientCount++;
                             startChat();
-                            session.setMaxIdleTimeout(30000);
+                            session.setMaxIdleTimeout(15000);
                         }
                         else {
                             session.getBasicRemote().sendText(new Message("emailConfirmInvalid").toString());

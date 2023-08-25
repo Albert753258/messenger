@@ -61,6 +61,7 @@ public class MainActivity3 extends AppCompatActivity {
             dialog = new ProgressDialog(this);
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             dialog.setMessage(getString(R.string.findingChat));
+            dialog.setCancelable(false);
             //StrictMode.ThreadPolicy gfgPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             //StrictMode.setThreadPolicy(gfgPolicy);
             dialog.show();
