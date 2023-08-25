@@ -170,6 +170,8 @@ public class ServerEndpoint {
                     }
                     else {
                         Message message1 = new Message("confirmEmail");
+                        sessionInvalid = false;
+                        System.out.println("SessionInvalid");
                         session.getBasicRemote().sendText(message1.toString());
                     }
                 }
