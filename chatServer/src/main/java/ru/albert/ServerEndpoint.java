@@ -159,6 +159,7 @@ public class ServerEndpoint {
             for(Account account: Main.accounts){
                 if(account.sessionHash.equals(message.sessionHash)){
                     if(account.verified == 0){
+                        System.out.println("SessionValid");
                         sessions.add(session);
                         sessionInvalid = false;
                         session.getBasicRemote().sendText(new Message("sessionValid").toString());
@@ -173,6 +174,7 @@ public class ServerEndpoint {
                 }
             }
             if(sessionInvalid){
+                System.out.println("SessionInvalid");
                 session.getBasicRemote().sendText(new Message("sessionInvalid").toString());
             }
         }

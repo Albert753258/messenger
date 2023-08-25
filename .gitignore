@@ -1,2 +1,4 @@
 ./mdc
 mdc
+*.jar
+target/

@@ -3,6 +3,7 @@ package ru.albert.quich;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -22,6 +23,7 @@ public class ClientEndpoint {
 
     @OnMessage
     public void onMessage(final Message message) throws Exception {
+        Log.println(Log.ASSERT, "dd", message.action);
         if(message.action.equals("loginhash")){
             String loginHash = message.text;
             StartActivity.loginEditor.putString("loginhash", loginHash);

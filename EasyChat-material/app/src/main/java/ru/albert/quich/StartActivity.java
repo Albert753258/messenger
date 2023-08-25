@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import org.glassfish.tyrus.client.ClientManager;
 import java.net.URI;
@@ -30,6 +31,8 @@ public class StartActivity extends AppCompatActivity {
         loginSettings = getSharedPreferences("loginInfo", MODE_PRIVATE);
         loginEditor = loginSettings.edit();
         boolean isFirstLaunch = loginSettings.getString("loginhash", "").equals("");
+        System.out.println("Startup");
+        Log.println(Log.ASSERT, "Startup", "Startup");
         //boolean isFirstLaunch = true;
         class ServerConnector extends AsyncTask<Void, Void, Void> {
             @Override
