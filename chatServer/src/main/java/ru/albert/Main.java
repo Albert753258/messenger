@@ -39,12 +39,14 @@ public class Main {
                     for(Session session : ServerEndpoint.sessions){
                         if(!session.isOpen()){
                             ServerEndpoint.sessions.remove(session);
+                            ServerEndpoint.clientCount--;
                             System.out.println("Session removed" + session.getId());
+                            break;
                         }
                     }
                 }
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.SECONDS);
         server.start();
         Scanner sc = new Scanner(System.in);
         sc.nextInt();
