@@ -22,7 +22,7 @@ public class Main {
     public static SSLSender sender;
     public static int lastId = 0;
     public static void main(String[] args) throws DeploymentException, IOException, DecodeException, EncodeException, SQLException {
-        org.glassfish.tyrus.server.Server server = new org.glassfish.tyrus.server.Server("127.0.0.1", 1111, "/", ServerEndpoint.class);
+        org.glassfish.tyrus.server.Server server = new org.glassfish.tyrus.server.Server("172.86.75.11", 1111, "/", ServerEndpoint.class);
         connection = DriverManager.getConnection(Values.DB_URL, Values.DB_USER, Values.DB_PASSWORD);
         statement = connection.createStatement();
         ResultSet result = statement.executeQuery(Values.GET_ACCOUNTS);
