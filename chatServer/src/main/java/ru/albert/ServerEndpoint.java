@@ -32,10 +32,6 @@ public class ServerEndpoint {
     @OnOpen
     public void onOpen(Session session) throws IOException {
         System.out.println(format("%s joined the chat room.", session.getId()));
-        //synchronized (sessions){
-            //sessions.add(session);
-        //}
-        //peers.add(session);
     }
     public static String bytesToHex(byte[] hash) {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
@@ -109,7 +105,7 @@ public class ServerEndpoint {
                 //loginMessage.text = sessionHash;
                 //loginMessage.userName = userName;
                 //session.getBasicRemote().sendObject(loginMessage.toString());
-                //sessions.add(session);
+                //sessio ns.add(session);
                 //clientCount++;
                 //startChat();
                 Message message1 = new Message("confirmEmail");
@@ -121,7 +117,8 @@ public class ServerEndpoint {
         else if(message.action.equals("login")){
             String passHash = message.passHash;
             boolean userExist = false;
-            for(Account account : Main.accounts){
+            for(int i = 0; i < Main.accounts.size(); i++){
+                Account account = Main.accounts.get(i);
                 if(account.passHash.equals(passHash)){
                     userExist = true;
                     MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -130,6 +127,7 @@ public class ServerEndpoint {
                     account.sessionHash = sessionHash;
                     String SQL = Values.UPDATE_SQL_SESSIONHASH + sessionHash + "' WHERE username = '" + account.userName + "';";
                     Main.statement.executeUpdate(SQL);
+                    Main.accounts.set(i, account);
                     Message loginMessage = new Message();
                     loginMessage.action = "loginhash";
                     loginMessage.text = account.sessionHash;
@@ -140,6 +138,7 @@ public class ServerEndpoint {
                         clientCount++;
                         startChat();
                         session.setMaxIdleTimeout(30000);
+                        return;
                     }
                     else{
                         Message message1 = new Message("confirmEmail");
@@ -252,6 +251,10 @@ public class ServerEndpoint {
                 sessions.remove(session1);
                 clientCount--;
                 session2 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount));
+                if(session1.getId().equals(session2.getId())){
+                    System.out.println("Same sessions");
+                    return;
+                }
                 sessions.remove(session2);
                 clientCount--;
             }
