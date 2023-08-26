@@ -49,6 +49,7 @@ public class Main {
                                 if (!chat.session1.isOpen()) {
                                     sessions.add(chat.session2);
                                     chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
+                                    ServerEndpoint.startChat();
                                     chats.remove(chat);
                                     break;
                                 }
@@ -56,6 +57,7 @@ public class Main {
                                     sessions.add(chat.session1);
                                     chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
                                     chats.remove(chat);
+                                    ServerEndpoint.startChat();
                                     break;
                                 }
                             }

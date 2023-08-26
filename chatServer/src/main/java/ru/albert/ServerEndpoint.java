@@ -220,12 +220,14 @@ public class ServerEndpoint {
                     sessions.add(chat.session2);
                     chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
                     chats.remove(chat);
+                    ServerEndpoint.startChat();
                     break;
                 }
                 if(chat.session2.getId().equals(session.getId())){
                     sessions.add(chat.session1);
                     chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
                     chats.remove(chat);
+                    ServerEndpoint.startChat();
                     break;
                 }
             }
@@ -236,7 +238,7 @@ public class ServerEndpoint {
         new SecureRandom().nextBytes(iv);
         return new IvParameterSpec(iv);
     }
-    public void startChat() throws IOException {
+    public static void startChat() throws IOException {
         System.out.println("Trying to start...");
         if(sessions.size() >= 2){
             System.out.println("Starting...");
