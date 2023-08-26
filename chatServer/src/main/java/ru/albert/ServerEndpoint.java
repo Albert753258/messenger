@@ -182,19 +182,15 @@ public class ServerEndpoint {
                     Account account = Main.accounts.get(i);
                     if(account.sessionHash.equals(message.sessionHash)){
                         if(account.verified == message.authorId){
-                            sessions.add(session);
                             session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
                             String SQL = Values.UPDATE_SQL_VERIFIED + 0 + "' WHERE username = '" + account.userName + "';";
                             Main.statement.executeUpdate(SQL);
                             account.verified = 0;
                             Main.accounts.set(i, account);
-                            startChat();
                             session.setMaxIdleTimeout(timeOut);
                         }
                         else if(account.verified == 0){
-                            sessions.add(session);
                             session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
-                            startChat();
                             session.setMaxIdleTimeout(timeOut);
                         }
                         else {
