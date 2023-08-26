@@ -41,28 +41,28 @@ public class Main {
                             sessions.remove(session);
                             ServerEndpoint.clientCount--;
                             System.out.println("Session removed" + session.getId());
-                            synchronized (chats){
-                                try {
-                                    for (Chat chat : chats) {
-                                        if (chat.session1.getId().equals(session.getId())) {
-                                            sessions.add(chat.session2);
-                                            chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
-                                            chats.remove(chat);
-                                            break;
-                                        }
-                                        else if (chat.session2.getId().equals(session.getId())) {
-                                            sessions.add(chat.session1);
-                                            chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
-                                            chats.remove(chat);
-                                            break;
-                                        }
-                                        ServerEndpoint.clientCount++;
-                                    }
-                                }
-                                catch (Exception e){}
-                            }
                             break;
                         }
+                    }
+                    synchronized (chats){
+                        try {
+                            for (Chat chat : chats) {
+                                if (!chat.session1.isOpen()) {
+                                    sessions.add(chat.session2);
+                                    chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
+                                    chats.remove(chat);
+                                    break;
+                                }
+                                else if (!chat.session2.isOpen()) {
+                                    sessions.add(chat.session1);
+                                    chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
+                                    chats.remove(chat);
+                                    break;
+                                }
+                                ServerEndpoint.clientCount++;
+                            }
+                        }
+                        catch (Exception e){}
                     }
                 }
             }

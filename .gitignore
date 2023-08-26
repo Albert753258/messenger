@@ -3,3 +3,4 @@ mdc
 *.jar
 target/
 chatServer/src/main/java/ru/albert/Values.java
+EasyChat-material/.idea/
