@@ -16,7 +16,7 @@ public class ServerEndpoint {
     //static Set<Session> peers = Collections.synchronizedSet(new HashSet<Session>());
     static LinkedList<Session> sessions = new LinkedList<>();
     public static LinkedList<Chat> chats = new LinkedList<>();
-    Random random = new Random();
+    static Random random = new Random();
     public static long lastChatId;
     public static int timeOut = 10000;
 
