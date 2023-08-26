@@ -39,7 +39,6 @@ public class Main {
                     for(Session session : sessions){
                         if(!session.isOpen()){
                             sessions.remove(session);
-                            ServerEndpoint.clientCount--;
                             System.out.println("Session removed" + session.getId());
                             break;
                         }
@@ -59,7 +58,6 @@ public class Main {
                                     chats.remove(chat);
                                     break;
                                 }
-                                ServerEndpoint.clientCount++;
                             }
                         }
                         catch (Exception e){}

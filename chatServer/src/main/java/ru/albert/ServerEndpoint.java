@@ -18,7 +18,6 @@ public class ServerEndpoint {
     public static LinkedList<Chat> chats = new LinkedList<>();
     Random random = new Random();
     public static long lastChatId;
-    public static int clientCount = 0;
     public static int timeOut = 10000;
 
     public ServerEndpoint() throws IOException {
@@ -65,7 +64,6 @@ public class ServerEndpoint {
                         chat.session1.getBasicRemote().sendText(new Message("stopChat").toString());
                         chat.session2.getBasicRemote().sendText(new Message("stopChat").toString());
                         chats.remove(chat);
-                        clientCount += 2;
                         startChat();
                         //todo возможено, что при малом числе клиентов будут общаться одни и те же
                     }
@@ -134,7 +132,6 @@ public class ServerEndpoint {
                     session.getBasicRemote().sendObject(loginMessage.toString());
                     if(account.verified == 0){
                         sessions.add(session);
-                        clientCount++;
                         startChat();
                         session.setMaxIdleTimeout(timeOut);
                         return;
@@ -162,7 +159,6 @@ public class ServerEndpoint {
                         sessions.add(session);
                         sessionInvalid = false;
                         session.getBasicRemote().sendText(new Message("sessionValid").toString());
-                        clientCount++;
                         startChat();
                         session.setMaxIdleTimeout(timeOut);
                     }
@@ -192,14 +188,12 @@ public class ServerEndpoint {
                             Main.statement.executeUpdate(SQL);
                             account.verified = 0;
                             Main.accounts.set(i, account);
-                            clientCount++;
                             startChat();
                             session.setMaxIdleTimeout(timeOut);
                         }
                         else if(account.verified == 0){
                             sessions.add(session);
                             session.getBasicRemote().sendText(new Message("emailConfirmOk").toString());
-                            clientCount++;
                             startChat();
                             session.setMaxIdleTimeout(timeOut);
                         }
@@ -234,7 +228,6 @@ public class ServerEndpoint {
                     chats.remove(chat);
                     break;
                 }
-                clientCount++;
             }
         }
     }
@@ -245,21 +238,19 @@ public class ServerEndpoint {
     }
     public void startChat() throws IOException {
         System.out.println("Trying to start...");
-        if(ServerEndpoint.clientCount >= 2){
+        if(sessions.size() >= 2){
             System.out.println("Starting...");
             Session session1;
             Session session2;
             synchronized (sessions){
-                session1 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount - 1));
+                session1 = ServerEndpoint.sessions.get(random.nextInt(sessions.size() - 1));
                 sessions.remove(session1);
-                clientCount--;
-                session2 = ServerEndpoint.sessions.get(random.nextInt(ServerEndpoint.clientCount));
+                session2 = ServerEndpoint.sessions.get(random.nextInt(sessions.size()));
                 if(session1.getId().equals(session2.getId())){
                     System.out.println("Same sessions");
                     return;
                 }
                 sessions.remove(session2);
-                clientCount--;
             }
             synchronized (chats){
                 chats.add(new Chat(session1, session2));
